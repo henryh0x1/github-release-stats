@@ -4,9 +4,9 @@ var apiRoot = "https://api.github.com/";
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
-    for(var i = 0; i < vars.length; i++) {
+    for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split("=");
-        if(pair[0] == variable) {
+        if (pair[0] == variable) {
             return pair[1];
         }
     }
@@ -42,17 +42,17 @@ $("#username").keyup(function (event) {
 function getUserRepos() {
     var user = $("#username").val();
 
-    var autoComplete = $('#repository').typeahead({ 
+    var autoComplete = $('#repository').typeahead({
         autoSelect: true,
-        afterSelect: function() {
+        afterSelect: function () {
             $("#get-stats-button").click();
         }
-     });
+    });
     var repoNames = [];
 
     var url = apiRoot + "users/" + user + "/repos";
-    $.getJSON(url, function(data) {
-        $.each(data, function(index, item) {
+    $.getJSON(url, function (data) {
+        $.each(data, function (index, item) {
             repoNames.push(item.name);
         });
     });
@@ -65,31 +65,33 @@ function showStats(data) {
     var err = false;
     var errMessage = '';
 
-    if(data.status == 404) {
+    if (data.status == 404) {
         err = true;
         errMessage = "The project does not exist!";
     }
 
-    if(data.status == 403) {
+    if (data.status == 403) {
         err = true;
         errMessage = "You've exceeded GitHub's rate limiting.<br />Please try again in about an hour.";
     }
 
-    if(data.length == 0) {
+    if (data.length == 0) {
         err = true;
         errMessage = getQueryVariable("page") > 1 ? "No more releases" : "There are no releases for this project";
     }
 
     var html = "";
 
-    if(err) {
+    if (err) {
         html += "<div class='col-md-6 col-md-offset-3 alert alert-danger output'>" + errMessage + "</div>";
     } else {
         html += "<div class='col-md-6 col-md-offset-3 output'>";
 
         var isLatestRelease = getQueryVariable("page") == 1 ? true : false;
         var totalDownloadCount = 0;
-        $.each(data, function(index, item) {
+        var totalUpdateDownload = 0;
+
+        $.each(data, function (index, item) {
             var releaseTag = item.tag_name;
             var releaseBadge = "";
             var releaseClassNames = "release";
@@ -100,30 +102,32 @@ function showStats(data) {
             var releaseAuthor = item.author;
             var publishDate = item.published_at.split("T")[0];
 
-            if(isPreRelease) {
+            if (isPreRelease) {
                 releaseBadge = "&nbsp;&nbsp;<span class='badge'>Pre-release</span>";
                 releaseClassNames += " pre-release";
-            } else if(isLatestRelease) {
+            } else if (isLatestRelease) {
                 releaseBadge = "&nbsp;&nbsp;<span class='badge'>Latest release</span>";
                 releaseClassNames += " latest-release";
                 isLatestRelease = false;
             }
 
             var downloadInfoHTML = "";
-            if(releaseAssets.length) {
+            if (releaseAssets.length) {
                 downloadInfoHTML += "<h4><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
                     "Download Info</h4>";
 
                 downloadInfoHTML += "<ul>";
 
-                $.each(releaseAssets, function(index, asset) {
+                $.each(releaseAssets, function (index, asset) {
                     var assetSize = (asset.size / 1048576.0).toFixed(2);
                     var lastUpdate = asset.updated_at.split("T")[0];
 
                     downloadInfoHTML += "<li><code>" + asset.name + "</code> (" + assetSize + "&nbsp;MiB) - " +
                         "downloaded " + formatNumber(asset.download_count) + "&nbsp;times. " +
                         "Last&nbsp;updated&nbsp;on&nbsp;" + lastUpdate + "</li>";
-
+                    if (asset.name === "latest-linux.yml" || asset.name === "latest-mac.yml" || asset.name === "latest.yml") {
+                        totalUpdateDownload += asset.download_count;
+                    }
                     totalDownloadCount += asset.download_count;
                     releaseDownloadCount += asset.download_count;
                 });
@@ -142,13 +146,13 @@ function showStats(data) {
 
             if (releaseAuthor) {
                 html += "<li><span class='glyphicon glyphicon-user'></span>&nbsp;&nbsp;" +
-                    "Author: <a href='" + releaseAuthor.html_url + "'>@" + releaseAuthor.login  +"</a></li>";
+                    "Author: <a href='" + releaseAuthor.html_url + "'>@" + releaseAuthor.login + "</a></li>";
             }
 
             html += "<li><span class='glyphicon glyphicon-calendar'></span>&nbsp;&nbsp;" +
                 "Published: " + publishDate + "</li>";
 
-            if(releaseDownloadCount) {
+            if (releaseDownloadCount) {
                 html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
                     "Downloads: " + formatNumber(releaseDownloadCount) + "</li>";
             }
@@ -160,16 +164,28 @@ function showStats(data) {
             html += "</div>";
         });
 
-        if(totalDownloadCount) {
+        if (totalUpdateDownload) {
             var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Downloads</h1>";
-            totalHTML += "<span>" + formatNumber(totalDownloadCount) + "</span>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Release Updates</h1>";
+            totalHTML += "<span>" + formatNumber(totalUpdateDownload) + "</span>";
             totalHTML += "</div>";
-
+            html = totalHTML + html;
+            var totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total non-update Downloads </h1>";
+            totalHTML += "<span>" + formatNumber(totalDownloadCount - totalUpdateDownload) + "</span>";
+            totalHTML += "</div>";
             html = totalHTML + html;
         }
 
         html += "</div>";
+
+        if (totalDownloadCount) {
+            var totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Downloads</h1>";
+            totalHTML += "<span>" + formatNumber(totalDownloadCount) + "</span>";
+            totalHTML += "</div>";
+            html = totalHTML + html;
+        }
     }
 
     var resultDiv = $("#stats-result");
@@ -198,7 +214,7 @@ function redirect(page, perPage) {
 }
 
 // The main function
-$(function() {
+$(function () {
     $("#loader-gif").hide();
 
     validateInput();
@@ -206,20 +222,20 @@ $(function() {
 
     $("#username").change(getUserRepos);
 
-    $("#get-stats-button").click(function() {
+    $("#get-stats-button").click(function () {
         redirect(page, perPage);
     });
 
-    $("#get-prev-results-button").click(function() {
+    $("#get-prev-results-button").click(function () {
         redirect(page > 1 ? --page : 1, perPage);
     });
 
-    $("#get-next-results-button").click(function() {
+    $("#get-next-results-button").click(function () {
         redirect(++page, perPage);
     });
 
-    $("#per-page select").on('change', function() {
-        if(username == "" && repository == "") return;
+    $("#per-page select").on('change', function () {
+        if (username == "" && repository == "") return;
         redirect(page, this.value);
     });
 
@@ -229,7 +245,7 @@ $(function() {
     var page = getQueryVariable("page") || 1;
     var perPage = getQueryVariable("per_page") || 100;
 
-    if(username != "" && repository != "") {
+    if (username != "" && repository != "") {
         $("#username").val(username);
         $("#title .username").text(username);
         $("#repository").val(repository);
@@ -242,7 +258,7 @@ $(function() {
         $("#loader-gif").show();
         getStats(page, perPage);
 
-        if(showSearch == "0") {
+        if (showSearch == "0") {
             $("#search").hide();
             $("#description").hide();
             $("#title").show();
