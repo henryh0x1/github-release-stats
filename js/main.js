@@ -90,6 +90,9 @@ function showStats(data) {
         var isLatestRelease = getQueryVariable("page") == 1 ? true : false;
         var totalDownloadCount = 0;
         var totalUpdateDownload = 0;
+        var totalWindowsDownloadCount = 0;
+        var totalMacDownloadCount = 0;
+        var totalLinuxDownloadCount = 0;
 
         $.each(data, function (index, item) {
             var releaseTag = item.tag_name;
@@ -98,7 +101,11 @@ function showStats(data) {
             var releaseURL = item.html_url;
             var isPreRelease = item.prerelease;
             var releaseAssets = item.assets;
+            var releaseUpdateCount = 0;
             var releaseDownloadCount = 0;
+            var releaseWindowsDownloadCount = 0;
+            var releaseMacDownloadCount = 0;
+            var releaseLinuxDownloadCount = 0;
             var releaseAuthor = item.author;
             var publishDate = item.published_at.split("T")[0];
 
@@ -127,8 +134,22 @@ function showStats(data) {
                         "Last&nbsp;updated&nbsp;on&nbsp;" + lastUpdate + "</li>";
                     if (asset.name === "latest-linux.yml" || asset.name === "latest-mac.yml" || asset.name === "latest.yml") {
                         totalUpdateDownload += asset.download_count;
+                        releaseUpdateCount += asset.download_count;
                     }
                     totalDownloadCount += asset.download_count;
+                    if (asset.name.includes("-win-")) {
+                        releaseWindowsDownloadCount += asset.download_count;
+                        totalWindowsDownloadCount += asset.download_count;
+                    }
+                    if (asset.name.includes("-mac-")) {
+                        releaseMacDownloadCount += asset.download_count;
+                        totalMacDownloadCount += asset.download_count;
+                    }
+                    if (asset.name.includes("-linux-")) {
+                        releaseLinuxDownloadCount += asset.download_count;
+                        totalLinuxDownloadCount += asset.download_count;
+                    }
+                    
                     releaseDownloadCount += asset.download_count;
                 });
             }
@@ -157,6 +178,26 @@ function showStats(data) {
                     "Downloads: " + formatNumber(releaseDownloadCount) + "</li>";
             }
 
+            if (releaseWindowsDownloadCount) {
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
+                    "Windows Downloads: " + formatNumber(releaseWindowsDownloadCount) + "</li>";
+            }
+
+            if (releaseMacDownloadCount) {
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
+                    "Mac Downloads: " + formatNumber(releaseMacDownloadCount) + "</li>";
+            }
+
+            if (releaseLinuxDownloadCount) {
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
+                    "Linux Downloads: " + formatNumber(releaseLinuxDownloadCount) + "</li>";
+            }
+
+            if (releaseUpdateCount) {
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
+                    "Update Downloads: " + formatNumber(releaseUpdateCount) + "</li>";
+            }
+
             html += "</ul>";
 
             html += downloadInfoHTML;
@@ -166,13 +207,26 @@ function showStats(data) {
 
         if (totalUpdateDownload) {
             var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Release Updates</h1>";
-            totalHTML += "<span>" + formatNumber(totalUpdateDownload) + "</span>";
-            totalHTML += "</div>";
-            html = totalHTML + html;
-            var totalHTML = "<div class='row total-downloads'>";
             totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total non-update Downloads </h1>";
             totalHTML += "<span>" + formatNumber(totalDownloadCount - totalUpdateDownload) + "</span>";
+            totalHTML += "</div>";
+            html = totalHTML + html;
+
+            var totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Windows Downloads </h1>";
+            totalHTML += "<span>" + formatNumber(totalWindowsDownloadCount) + "</span>";
+            totalHTML += "</div>";
+            html = totalHTML + html;
+
+            var totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Mac Downloads </h1>";
+            totalHTML += "<span>" + formatNumber(totalMacDownloadCount) + "</span>";
+            totalHTML += "</div>";
+            html = totalHTML + html;
+
+            var totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Linux Downloads </h1>";
+            totalHTML += "<span>" + formatNumber(totalLinuxDownloadCount) + "</span>";
             totalHTML += "</div>";
             html = totalHTML + html;
         }
@@ -182,7 +236,7 @@ function showStats(data) {
         if (totalDownloadCount) {
             var totalHTML = "<div class='row total-downloads'>";
             totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Downloads</h1>";
-            totalHTML += "<span>" + formatNumber(totalDownloadCount) + "</span>";
+            totalHTML += "<span>" + formatNumber(totalDownloadCount) + " with included " + formatNumber(totalUpdateDownload) + " updates" + "</span>";
             totalHTML += "</div>";
             html = totalHTML + html;
         }
