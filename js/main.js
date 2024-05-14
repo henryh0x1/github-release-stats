@@ -236,7 +236,7 @@ function showStats(data) {
         if (totalDownloadCount) {
             var totalHTML = "<div class='row total-downloads'>";
             totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Downloads</h1>";
-            totalHTML += "<span>" + formatNumber(totalDownloadCount) + " with included " + formatNumber(totalUpdateDownload) + " updates" + "</span>";
+            totalHTML += "<span>" + formatNumber(totalDownloadCount) + " with including " + formatNumber(totalUpdateDownload) + " updates" + "</span>";
             totalHTML += "</div>";
             html = totalHTML + html;
         }
