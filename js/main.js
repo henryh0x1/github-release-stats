@@ -207,7 +207,7 @@ function showStats(data) {
 
         if (totalUpdateDownload) {
             var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total non-update Downloads </h1>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Non-update Downloads </h1>";
             totalHTML += "<span>" + formatNumber(totalDownloadCount - totalUpdateDownload) + "</span>";
             totalHTML += "</div>";
             html = totalHTML + html;
