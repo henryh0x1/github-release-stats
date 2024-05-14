@@ -227,7 +227,7 @@ $(function() {
     var repository = getQueryVariable("repository");
     var showSearch = getQueryVariable("search");
     var page = getQueryVariable("page") || 1;
-    var perPage = getQueryVariable("per_page") || 5;
+    var perPage = getQueryVariable("per_page") || 100;
 
     if(username != "" && repository != "") {
         $("#username").val(username);
