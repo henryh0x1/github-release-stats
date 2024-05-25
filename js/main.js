@@ -15,7 +15,7 @@ function getQueryVariable(variable) {
 
 // Format numbers
 function formatNumber(value) {
-    return value.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')
+    return value.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,');
 }
 
 // Validate the user input
@@ -120,9 +120,7 @@ function showStats(data) {
 
             var downloadInfoHTML = "";
             if (releaseAssets.length) {
-                downloadInfoHTML += "<h4><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Download Info</h4>";
-
+                downloadInfoHTML += "<h4><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Download Info</h4>";
                 downloadInfoHTML += "<ul>";
 
                 $.each(releaseAssets, function (index, asset) {
@@ -132,6 +130,7 @@ function showStats(data) {
                     downloadInfoHTML += "<li><code>" + asset.name + "</code> (" + assetSize + "&nbsp;MiB) - " +
                         "downloaded " + formatNumber(asset.download_count) + "&nbsp;times. " +
                         "Last&nbsp;updated&nbsp;on&nbsp;" + lastUpdate + "</li>";
+
                     if (asset.name === "latest-linux.yml" || asset.name === "latest-mac.yml" || asset.name === "latest.yml") {
                         totalUpdateDownload += asset.download_count;
                         releaseUpdateCount += asset.download_count;
@@ -149,94 +148,74 @@ function showStats(data) {
                         releaseLinuxDownloadCount += asset.download_count;
                         totalLinuxDownloadCount += asset.download_count;
                     }
-                    
+
                     releaseDownloadCount += asset.download_count;
                 });
+                downloadInfoHTML += "</ul>";
             }
 
             html += "<div class='row " + releaseClassNames + "'>";
-
-            html += "<h3><span class='glyphicon glyphicon-tag'></span>&nbsp;&nbsp;" +
-                "<a href='" + releaseURL + "' target='_blank'>" + releaseTag + "</a>" +
-                releaseBadge + "</h3>" + "<hr class='release-hr'>";
-
-            html += "<h4><span class='glyphicon glyphicon-info-sign'></span>&nbsp;&nbsp;" +
-                "Release Info</h4>";
-
+            html += "<h3><span class='glyphicon glyphicon-tag'></span>&nbsp;&nbsp;<a href='" + releaseURL + "' target='_blank'>" + releaseTag + "</a>" + releaseBadge + "</h3><hr class='release-hr'>";
+            html += "<h4><span class='glyphicon glyphicon-info-sign'></span>&nbsp;&nbsp;Release Info</h4>";
             html += "<ul>";
-
             if (releaseAuthor) {
-                html += "<li><span class='glyphicon glyphicon-user'></span>&nbsp;&nbsp;" +
-                    "Author: <a href='" + releaseAuthor.html_url + "'>@" + releaseAuthor.login + "</a></li>";
+                html += "<li><span class='glyphicon glyphicon-user'></span>&nbsp;&nbsp;Author: <a href='" + releaseAuthor.html_url + "'>@" + releaseAuthor.login + "</a></li>";
             }
-
-            html += "<li><span class='glyphicon glyphicon-calendar'></span>&nbsp;&nbsp;" +
-                "Published: " + publishDate + "</li>";
-
+            html += "<li><span class='glyphicon glyphicon-calendar'></span>&nbsp;&nbsp;Published: " + publishDate + "</li>";
             if (releaseDownloadCount) {
-                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Downloads: " + formatNumber(releaseDownloadCount) + "</li>";
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Release Downloads: " + formatNumber(releaseDownloadCount) + "</li>";
             }
-
             if (releaseWindowsDownloadCount) {
-                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Windows Downloads: " + formatNumber(releaseWindowsDownloadCount) + "</li>";
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Windows Downloads: " + formatNumber(releaseWindowsDownloadCount) + " (" + (releaseWindowsDownloadCount / releaseDownloadCount * 100).toFixed(2) + "%)</li>";
             }
-
             if (releaseMacDownloadCount) {
-                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Mac Downloads: " + formatNumber(releaseMacDownloadCount) + "</li>";
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Mac Downloads: " + formatNumber(releaseMacDownloadCount) + " (" + (releaseMacDownloadCount / releaseDownloadCount * 100).toFixed(2) + "%)</li>";
             }
-
             if (releaseLinuxDownloadCount) {
-                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Linux Downloads: " + formatNumber(releaseLinuxDownloadCount) + "</li>";
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Linux Downloads: " + formatNumber(releaseLinuxDownloadCount) + " (" + (releaseLinuxDownloadCount / releaseDownloadCount * 100).toFixed(2) + "%)</li>";
             }
-
             if (releaseUpdateCount) {
-                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;" +
-                    "Update Downloads: " + formatNumber(releaseUpdateCount) + "</li>";
+                html += "<li><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Update Downloads: " + formatNumber(releaseUpdateCount) + " (" + (releaseUpdateCount / releaseDownloadCount * 100).toFixed(2) + "%)</li>";
             }
-
             html += "</ul>";
-
             html += downloadInfoHTML;
-
             html += "</div>";
         });
-
-        if (totalUpdateDownload) {
-            var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Non-update Downloads </h1>";
-            totalHTML += "<span>" + formatNumber(totalDownloadCount - totalUpdateDownload) + "</span>";
-            totalHTML += "</div>";
-            html = totalHTML + html;
-
-            var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Windows Downloads </h1>";
-            totalHTML += "<span>" + formatNumber(totalWindowsDownloadCount) + "</span>";
-            totalHTML += "</div>";
-            html = totalHTML + html;
-
-            var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Mac Downloads </h1>";
-            totalHTML += "<span>" + formatNumber(totalMacDownloadCount) + "</span>";
-            totalHTML += "</div>";
-            html = totalHTML + html;
-
-            var totalHTML = "<div class='row total-downloads'>";
-            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp; Total Linux Downloads </h1>";
-            totalHTML += "<span>" + formatNumber(totalLinuxDownloadCount) + "</span>";
-            totalHTML += "</div>";
-            html = totalHTML + html;
-        }
 
         html += "</div>";
 
         if (totalDownloadCount) {
             var totalHTML = "<div class='row total-downloads'>";
             totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Downloads</h1>";
-            totalHTML += "<span>" + formatNumber(totalDownloadCount) + " with including " + formatNumber(totalUpdateDownload) + " updates" + "</span>";
+            totalHTML += "<span>" + formatNumber(totalDownloadCount) + " (including " + formatNumber(totalUpdateDownload) + " updates - " + (totalUpdateDownload / totalDownloadCount * 100).toFixed(2) + "%)</span>";
+            totalHTML += "</div>";
+            html = totalHTML + html;
+
+            if (totalLinuxDownloadCount) {
+                totalHTML = "<div class='row total-downloads'>";
+                totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Linux Downloads</h1>";
+                totalHTML += "<span>" + formatNumber(totalLinuxDownloadCount) + " (" + (totalLinuxDownloadCount / (totalDownloadCount - totalUpdateDownload) * 100).toFixed(2) + "%)</span>";
+                totalHTML += "</div>";
+                html = totalHTML + html;
+            }
+            if (totalMacDownloadCount) {
+                totalHTML = "<div class='row total-downloads'>";
+                totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Mac Downloads</h1>";
+                totalHTML += "<span>" + formatNumber(totalMacDownloadCount) + " (" + (totalMacDownloadCount / (totalDownloadCount - totalUpdateDownload) * 100).toFixed(2) + "%)</span>";
+                totalHTML += "</div>";
+                html = totalHTML + html;
+            }
+            if (totalWindowsDownloadCount) {
+                totalHTML = "<div class='row total-downloads'>";
+                totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Windows Downloads</h1>";
+                totalHTML += "<span>" + formatNumber(totalWindowsDownloadCount) + " (" + (totalWindowsDownloadCount / (totalDownloadCount - totalUpdateDownload) * 100).toFixed(2) + "%)</span>";
+                totalHTML += "</div>";
+                html = totalHTML + html;
+            }
+            var nonUpdateDownloads = totalDownloadCount - totalUpdateDownload;
+            totalHTML = "<div class='row total-downloads'>";
+            totalHTML += "<h1><span class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;Total Non-update Downloads</h1>";
+            totalHTML += "<span>" + formatNumber(nonUpdateDownloads) + "</span>";
             totalHTML += "</div>";
             html = totalHTML + html;
         }
